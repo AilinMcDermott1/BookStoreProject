@@ -13,10 +13,8 @@ public class Book {
 	private Long id;
 	private String author;
 	private String title;
-	private String topic;
-	private int number;
-	private int amount;
-	private int price;
+	private String genre;
+	private double price;
 
 	
 	
@@ -27,42 +25,24 @@ public class Book {
 
 
 	
-	public Book(Long id, String author, String title, String topic, int number,
-			int amount, int price) {
+	public Book(Long id, String author, String title, String genre, double price) {
 		super();
 		this.id = id;
 		this.author = author;
 		this.title = title;
-		this.topic = topic;
-		this.number = number;
-		this.amount = amount;
+		this.genre = genre;
 		this.price = price;
 	}
 
 	
 
 
-	public int getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-
-
-
-	public void setPrice(int price) {
+	public void setPrice(double price) {
 		this.price = price;
-	}
-
-
-
-
-	public int getAmount() {
-		return amount;
-	}
-
-
-	public void setAmount(int amount) {
-		this.amount = amount;
 	}
 
 
@@ -90,20 +70,12 @@ public class Book {
 		this.title = title;
 	}
 
-	public String getTopic() {
-		return topic;
+	public String getGenre() {
+		return genre;
 	}
 
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
-
-	public int getNumber() {
-		return number;
-	}
-
-	public void setNumber(int number) {
-		this.number = number;
+	public void setGenre(String genre) {
+		this.genre = genre;
 	}
 
 }

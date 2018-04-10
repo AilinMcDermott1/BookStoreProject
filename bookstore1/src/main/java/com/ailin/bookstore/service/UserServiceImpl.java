@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.ailin.bookstore.model.Book;
 import com.ailin.bookstore.model.User;
 import com.ailin.bookstore.repository.RoleRepository;
 import com.ailin.bookstore.repository.UserRepository;
@@ -30,4 +31,6 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+
 }

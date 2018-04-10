@@ -1,5 +1,10 @@
 package com.ailin.bookstore.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,8 +12,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.ailin.bookstore.model.Book;
 import com.ailin.bookstore.model.User;
+import com.ailin.bookstore.repository.*;
 import com.ailin.bookstore.service.SecurityService;
 import com.ailin.bookstore.service.UserService;
 import com.ailin.bookstore.validator.UserValidator;
@@ -23,6 +31,9 @@ public class UserController {
 
     @Autowired
     private UserValidator userValidator;
+    
+    @Autowired
+    private BookRepository bookRepository;
 
     @RequestMapping(value = "/registration", method = RequestMethod.GET)
     public String registration(Model model) {
@@ -32,7 +43,8 @@ public class UserController {
     }
 
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
-    public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult, Model model) {
+    public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult, Model model) 
+    {
         userValidator.validate(userForm, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -60,5 +72,33 @@ public class UserController {
     @RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
     public String welcome(Model model) {
         return "welcome";
+    }
+    
+@RequestMapping(value = "/addBookPage", method = RequestMethod.GET)
+    public String addBookPage(@Valid Book book, BindingResult bookResult, Model model) {
+		
+		return "addBook";
+    }
+    
+@RequestMapping(value = "/addBook", method = RequestMethod.POST)
+    public String addBook(Book book, @RequestParam("author") String author, 
+    		@RequestParam("title") String title,
+    		@RequestParam("genre") String genre,
+    		@RequestParam("price") double price) {
+    	
+        bookRepository.save(book);
+        
+		return "listOfBooks";
+
+    }
+    
+@RequestMapping(value = "/viewallbooks", method = RequestMethod.GET)
+    public String bookList(@Valid Book book, Model model) {
+    	List<Book> listOfBooks = new ArrayList<>();
+    	listOfBooks = bookRepository.findAll();
+    	
+    	model.addAttribute("listOfBooks", listOfBooks);
+    	
+    	return "listOfBooks";
     }
 }
