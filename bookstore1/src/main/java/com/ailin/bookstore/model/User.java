@@ -1,6 +1,8 @@
 package com.ailin.bookstore.model;
 
 import javax.persistence.*;
+
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -11,6 +13,8 @@ public class User {
     private String password;
     private String passwordConfirm;
     private Set<Role> roles;
+    private List<Book> shoppingCart;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -56,4 +60,23 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+    
+	public void saveBookToCart(Book book) {
+		shoppingCart.add(book);
+	}
+	
+	@ManyToMany(cascade=CascadeType.PERSIST)
+	@JoinTable(name = "user_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
+	public List<Book> getShoppingCart(){
+		return shoppingCart;
+	}
+	
+	public void setShoppingCart(List<Book> shoppingCart) {
+		this.shoppingCart = shoppingCart;
+	}
+
+	public void removeBookFromShoppingCart(Book book) {
+		this.shoppingCart = shoppingCart;
+		
+	}
 }

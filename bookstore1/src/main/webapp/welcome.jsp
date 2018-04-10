@@ -43,7 +43,11 @@
 
 
      <a href="/addBookPage">Add Book</a>
+     <br>
      <a href="/viewallbooks">View Books</a>
+     <br>
+     <a href="/viewShoppingCart">Cart</a>
+     
      
 
 </body>

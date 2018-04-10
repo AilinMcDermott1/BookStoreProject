@@ -9,5 +9,8 @@ import com.ailin.bookstore.model.Book;
 public interface BookRepository extends JpaRepository<Book, Long>{
 
 	Book findByTitle(String title);
+	
+	Book findById(Long id);
+
 
 }
