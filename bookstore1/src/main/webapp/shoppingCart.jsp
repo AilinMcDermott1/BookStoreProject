@@ -46,7 +46,7 @@
                  <td></td>
 				<td  height="50"><c:out value="${o.genre}"/></td>
 
-								<td><a href="<c:url value='/deletebook/${o.id}' />">
+				<td><a href="<c:url value='/deletebook/${o.id}' />">
    							Remove 
  					 </a>
  			    </td>  
@@ -54,6 +54,6 @@
 		</c:forEach>
         </table>
         
-<!--         <a href = "checkout">Proceed to Checkout</a>
- --></body>
+         <a href = "/checkout">Proceed to Checkout</a>
+</body>
 </html>

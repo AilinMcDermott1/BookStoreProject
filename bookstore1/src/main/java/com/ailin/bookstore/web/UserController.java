@@ -1,7 +1,9 @@
 package com.ailin.bookstore.web;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ailin.bookstore.model.Book;
 import com.ailin.bookstore.model.User;
@@ -108,7 +111,7 @@ public class UserController {
 		return "listOfBooks";
 	}
 
-	@RequestMapping(value = " /shoppingcart/{bookId}", method=RequestMethod.GET)
+	@RequestMapping(value = " /addToCart/{bookId}", method=RequestMethod.GET)
 	public String shoppingCart(@PathVariable("bookId")Long id, Model model) {
 
 		// This gets the currently logged in user
@@ -162,9 +165,73 @@ public class UserController {
         System.out.println(username + "removed" + "Book: " + title);
         
         model.addAttribute("shoppingCart", shoppingCart);
-        
+                
 		return "deletedBook";
     }
+    
+    @RequestMapping(value="payment", method=RequestMethod.GET)
+    public String paymentPage() {
+    	
+    	return "payPage";
+    }
+    
+    @RequestMapping(value="paymentDetails", method=RequestMethod.GET)
+    @ResponseBody
+    public String payment(@RequestParam("shipping") String shipping,
+    		              @RequestParam("creditcard") String creditcard,
+    		              @RequestParam("expirydate") String expirydate,
+    		              @RequestParam("carddetails") int carddetails,
+    		              @RequestParam("cvv") int cvv) {
+    	
+    	
+    	System.out.println("Shipping Address: " + shipping + "\n" +
+    			           "Credit Card Type: " + creditcard + "\n" +
+    			           "Expiry Date: " + expirydate + "\n" +
+    			           "Card Number: " + carddetails + "\n" +
+    			           "CVV: " + cvv + "\n");
+    	
+    	Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+        String username = loggedInUser.getName(); // Authentication for 
+        User user = userRepository.findByUsername(username);
+        
+        user.setShipping_address(shipping);
+        userRepository.save(user);
+        
+    	return "payConfirmation";
+    }
+    
+    @RequestMapping(value="paymentpage", method=RequestMethod.GET)
+    public String confirmPaymentPage(Model model) {
+    	
+    
+    	
+    	return "payConfirmation";
+    }
+    
+    @RequestMapping(value = " /checkout", method=RequestMethod.GET)
+    public String checkout(Model model) {
+
+      // This gets the currently logged in user
+      Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+      String username = loggedInUser.getName(); // Authentication for 
+      User user = userRepository.findByUsername(username);
+
+      List<Book> checkout = user.getShoppingCart();
+      double total = 0;
+      double price;
+      
+
+      for(Book b: checkout) {
+    	   price = b.getPrice();
+    	   total += price;
+      }
+      //System.out.println(total);
+
+      model.addAttribute("total", total);
+
+      return "checkout";
+    }
+    
 
 
 }

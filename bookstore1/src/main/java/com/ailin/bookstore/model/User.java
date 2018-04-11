@@ -12,9 +12,14 @@ public class User {
     private String username;
     private String password;
     private String passwordConfirm;
+    private String shipping_address;
+    private String payment_details;
     private Set<Role> roles;
     private List<Book> shoppingCart;
 
+    
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	public Set<Book> books;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -79,4 +84,22 @@ public class User {
 		this.shoppingCart = shoppingCart;
 		
 	}
+
+	public String getShipping_address() {
+		return shipping_address;
+	}
+
+	public void setShipping_address(String shipping_address) {
+		this.shipping_address = shipping_address;
+	}
+
+	public String getPayment_details() {
+		return payment_details;
+	}
+
+	public void setPayment_details(String payment_details) {
+		this.payment_details = payment_details;
+	}
+	
+	
 }

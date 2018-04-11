@@ -26,6 +26,7 @@ table, th, td {
 	<h3>Some of our Books</h3>
 
 	<a href="/">Home</a>
+	<br>
 
 	<h2>All Books</h2>
 
@@ -59,7 +60,9 @@ table, th, td {
 
 			<td width="3.5%" height="50"><c:out value="${o.price}" /></td>
 
-
+			<td width="3.5%" height="50"><a href="<c:url value='/addToCart/${o.id}' />">
+   							Add To Cart
+ 					 </a> 					 
 		</tr>
 	</c:forEach>
 </table>
