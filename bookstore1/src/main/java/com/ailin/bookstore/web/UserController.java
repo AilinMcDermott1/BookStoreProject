@@ -1,9 +1,7 @@
 package com.ailin.bookstore.web;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -13,18 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.ailin.bookstore.model.Book;
-import com.ailin.bookstore.model.User;
+import com.ailin.bookstore.facade.OrderServiceFacadeImpl;
+import com.ailin.bookstore.model.*;
 import com.ailin.bookstore.repository.*;
-import com.ailin.bookstore.service.SecurityService;
-import com.ailin.bookstore.service.UserService;
+import com.ailin.bookstore.service.*;
 import com.ailin.bookstore.validator.UserValidator;
 
 @Controller
@@ -78,10 +70,27 @@ public class UserController {
 		return "login";
 	}
 
-	@RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
-	public String welcome(Model model) {
-		return "welcome";
-	}
+	   @RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
+	    public String welcome() {
+	    	
+	    	 Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+	         String username = loggedInUser.getName(); // Authentication for 
+	         User user = userRepository.findByUsername(username);
+	    	
+	         String result;
+	         
+	         if(user.getUsername().equals("bookstore_Admin")) {
+	        	 result = "admin";
+	        }
+	        
+	        else{
+	        	result = ("welcome");
+	        	}
+
+	        return result;
+	        
+	       
+	    }
 
 	@RequestMapping(value = "/addBookPage", method = RequestMethod.GET)
 	public String addBookPage(@Valid Book book, BindingResult bookResult, Model model) {
@@ -175,7 +184,7 @@ public class UserController {
     	return "payPage";
     }
     
-    @RequestMapping(value="paymentDetails", method=RequestMethod.GET)
+    @RequestMapping(value="payDetails", method=RequestMethod.GET)
     @ResponseBody
     public String payment(@RequestParam("shipping") String shipping,
     		              @RequestParam("creditcard") String creditcard,
@@ -225,12 +234,23 @@ public class UserController {
     	   price = b.getPrice();
     	   total += price;
       }
-      //System.out.println(total);
 
       model.addAttribute("total", total);
 
       return "checkout";
     }
+    
+    @RequestMapping(value="/orderfulfillment", method=RequestMethod.GET)
+    @ResponseBody
+    public void testOrderProduct() throws Exception{
+        OrderFulfillmentController controller=new OrderFulfillmentController();
+        controller.facade=new OrderServiceFacadeImpl();
+        if(controller.orderProduct(9)) {
+        boolean result=controller.orderFulfilled;
+        }
+    	
+    }
+    
     
 
 

@@ -10,7 +10,7 @@ public class Book {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Long id;
+	public Long id;
 	private String author;
 	private String title;
 	private String genre;
@@ -33,8 +33,6 @@ public class Book {
 		this.genre = genre;
 		this.price = price;
 	}
-
-	
 
 
 	public double getPrice() {

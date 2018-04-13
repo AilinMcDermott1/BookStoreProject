@@ -8,18 +8,14 @@ import java.util.Set;
 @Entity
 @Table(name = "user")
 public class User {
-    private Long id;
-    private String username;
-    private String password;
-    private String passwordConfirm;
-    private String shipping_address;
-    private String payment_details;
-    private Set<Role> roles;
-    private List<Book> shoppingCart;
-
-    
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	public Set<Book> books;
+	private Long id;
+	private String username;
+	private String password;
+	private String passwordConfirm;
+	private String shipping_address;
+	private String payment_details;
+	private Set<Role> roles;
+	private List<Book> shoppingCart;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -56,6 +52,11 @@ public class User {
         this.passwordConfirm = passwordConfirm;
     }
 
+    
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	public Set<Book> books;
+
+    
     @ManyToMany
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     public Set<Role> getRoles() {
