@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ailin.bookstore.facade.OrderServiceFacadeImpl;
 import com.ailin.bookstore.model.*;
+import com.ailin.bookstore.prototype.CloneFactory;
 import com.ailin.bookstore.repository.*;
 import com.ailin.bookstore.service.*;
 import com.ailin.bookstore.validator.UserValidator;
@@ -67,30 +68,35 @@ public class UserController {
 		if (logout != null)
 			model.addAttribute("message", "You have been logged out successfully.");
 
+		
+		User userBuilder=new User();
+		System.out.println("User details: "+userBuilder);
+
+		
 		return "login";
 	}
 
-	   @RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
-	    public String welcome() {
-	    	
-	    	 Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
-	         String username = loggedInUser.getName(); // Authentication for 
-	         User user = userRepository.findByUsername(username);
-	    	
-	         String result;
-	         
-	         if(user.getUsername().equals("bookstore_Admin")) {
-	        	 result = "admin";
-	        }
-	        
-	        else{
-	        	result = ("welcome");
-	        	}
+	@RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
+	public String welcome() {
 
-	        return result;
-	        
-	       
-	    }
+		Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+		String username = loggedInUser.getName(); // Authentication for 
+		User user = userRepository.findByUsername(username);
+
+		String result;
+
+		if(user.getUsername().equals("bookstore_Admin")) {
+			result = "admin";
+		}
+
+		else{
+			result = ("welcome");
+		}
+
+		return result;
+
+
+	}
 
 	@RequestMapping(value = "/addBookPage", method = RequestMethod.GET)
 	public String addBookPage(@Valid Book book, BindingResult bookResult, Model model) {
@@ -155,103 +161,149 @@ public class UserController {
 		return "shoppingCart";
 
 	}
-	
-    @RequestMapping(value = " /deletebook/{bookId}", method=RequestMethod.GET)
-    public String removeBookFromShoppingCart(@PathVariable("bookId")Long id, Model model) {
-    	
-        Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
-        String username = loggedInUser.getName(); // Authentication for 
-        User user = userRepository.findByUsername(username);
-        
-        
-        Book book = bookRepository.findById(id);
-        
-        user.removeBookFromShoppingCart(book);
-        List<Book> shoppingCart = user.getShoppingCart();
-        userRepository.save(user);
-        
-        String title = book.getTitle();
-        System.out.println(username + "removed" + "Book: " + title);
-        
-        model.addAttribute("shoppingCart", shoppingCart);
-                
+
+	@RequestMapping(value = " /deletebook/{bookId}", method=RequestMethod.GET)
+	public String removeBookFromShoppingCart(@PathVariable("bookId")Long id, Model model) {
+
+		Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+		String username = loggedInUser.getName(); // Authentication for 
+		User user = userRepository.findByUsername(username);
+
+
+		Book book = bookRepository.findById(id);
+
+		user.removeBookFromShoppingCart(book);
+		List<Book> shoppingCart = user.getShoppingCart();
+		userRepository.save(user);
+
+		String title = book.getTitle();
+		System.out.println(username + "removed" + "Book: " + title);
+
+		model.addAttribute("shoppingCart", shoppingCart);
+
 		return "deletedBook";
-    }
-    
-    @RequestMapping(value="payment", method=RequestMethod.GET)
-    public String paymentPage() {
-    	
-    	return "payPage";
-    }
-    
-    @RequestMapping(value="payDetails", method=RequestMethod.GET)
-    @ResponseBody
-    public String payment(@RequestParam("shipping") String shipping,
-    		              @RequestParam("creditcard") String creditcard,
-    		              @RequestParam("expirydate") String expirydate,
-    		              @RequestParam("carddetails") int carddetails,
-    		              @RequestParam("cvv") int cvv) {
-    	
-    	
-    	System.out.println("Shipping Address: " + shipping + "\n" +
-    			           "Credit Card Type: " + creditcard + "\n" +
-    			           "Expiry Date: " + expirydate + "\n" +
-    			           "Card Number: " + carddetails + "\n" +
-    			           "CVV: " + cvv + "\n");
-    	
-    	Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
-        String username = loggedInUser.getName(); // Authentication for 
-        User user = userRepository.findByUsername(username);
-        
-        user.setShipping_address(shipping);
-        userRepository.save(user);
-        
-    	return "payConfirmation";
-    }
-    
-    @RequestMapping(value="paymentpage", method=RequestMethod.GET)
-    public String confirmPaymentPage(Model model) {
-    	
-    
-    	
-    	return "payConfirmation";
-    }
-    
-    @RequestMapping(value = " /checkout", method=RequestMethod.GET)
-    public String checkout(Model model) {
+	}
 
-      // This gets the currently logged in user
-      Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
-      String username = loggedInUser.getName(); // Authentication for 
-      User user = userRepository.findByUsername(username);
+	@RequestMapping(value="payment", method=RequestMethod.GET)
+	public String paymentPage() {
 
-      List<Book> checkout = user.getShoppingCart();
-      double total = 0;
-      double price;
-      
+		return "payPage";
+	}
 
-      for(Book b: checkout) {
-    	   price = b.getPrice();
-    	   total += price;
-      }
+	@RequestMapping(value="payDetails", method=RequestMethod.GET)
+	@ResponseBody
+	public String payment(@RequestParam("shipping") String shipping,
+			@RequestParam("creditcard") String creditcard,
+			@RequestParam("expirydate") String expirydate,
+			@RequestParam("carddetails") int carddetails,
+			@RequestParam("cvv") int cvv) {
 
-      model.addAttribute("total", total);
 
-      return "checkout";
-    }
-    
-    @RequestMapping(value="/orderfulfillment", method=RequestMethod.GET)
-    @ResponseBody
-    public void testOrderProduct() throws Exception{
-        OrderFulfillmentController controller=new OrderFulfillmentController();
-        controller.facade=new OrderServiceFacadeImpl();
-        if(controller.orderProduct(9)) {
-        boolean result=controller.orderFulfilled;
-        }
-    	
-    }
-    
-    
+		System.out.println("Shipping Address: " + shipping + "\n" +
+				"Credit Card Type: " + creditcard + "\n" +
+				"Expiry Date: " + expirydate + "\n" +
+				"Card Number: " + carddetails + "\n" +
+				"CVV: " + cvv + "\n");
+		User user = new User(); 
 
+		Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+		String username = loggedInUser.getName(); // Authentication for 
+		user = userRepository.findByUsername(username);
+
+		user.setShipping_address(shipping);
+		userRepository.save(user);
+
+		OrderFulfillmentController controller=new OrderFulfillmentController();
+		controller.facade=new OrderServiceFacadeImpl();
+		if(controller.orderProduct(9)) {
+			boolean result=controller.orderFulfilled;
+		}
+
+		CloneFactory userMaker = new CloneFactory(); 
+		User clonedUser = (User) userMaker.getClone(user); 
+
+		System.out.println(user);
+		System.out.println(clonedUser);
+
+		System.out.println("User HashCode: " + System.identityHashCode(System.identityHashCode(user)));
+
+
+
+		System.out.println("Clone HashCode: " + System.identityHashCode(System.identityHashCode(clonedUser)));     
+
+
+		return "payConfirmation";
+	}
+
+
+
+	@RequestMapping(value="paymentpage", method=RequestMethod.GET)
+	public String confirmPaymentPage(Model model) {
+
+
+
+		return "payConfirmation";
+	}
+
+	@RequestMapping(value = " /checkout", method=RequestMethod.GET)
+	public String checkout(Model model) {
+
+		// This gets the currently logged in user
+		Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+		String username = loggedInUser.getName(); // Authentication for 
+		User user = userRepository.findByUsername(username);
+
+		List<Book> checkout = user.getShoppingCart();
+		double total = 0;
+		double price;
+
+
+		for(Book b: checkout) {
+			price = b.getPrice();
+			total += price;
+		}
+
+		model.addAttribute("total", total);
+
+		return "checkout";
+	}
+
+//	@RequestMapping(value="/orderfulfillment", method=RequestMethod.GET)
+//	@ResponseBody
+//	public void testOrderProduct() throws Exception{
+//		OrderFulfillmentController controller=new OrderFulfillmentController();
+//		controller.facade=new OrderServiceFacadeImpl();
+//		if(controller.orderProduct(9)) {
+//			boolean result=controller.orderFulfilled;
+//		}
+//
+//	}
+
+//	@RequestMapping(value="/userBuilder", method=RequestMethod.GET)
+//	@ResponseBody
+//	public void testUserBuilder() throws Exception{
+//		User userBuilder=new User();
+//		System.out.println("User details: "+userBuilder);
+//	}
+
+	//    @RequestMapping(value="/userBuilder", method=RequestMethod.GET)
+	//    @ResponseBody
+	//    public void testCloning() throws Exception{
+	//        CloneFactory userMaker = new CloneFactory(); 
+	//        User user = new User(); 
+	//        User clonedUser = (User) userMaker.getClone(user); 
+	//        
+	//        System.out.println(user);
+	//        System.out.println(clonedUser);
+	//        
+	//        System.out.println("User HashCode: " + System.identityHashCode(System.identityHashCode(user)));
+	//
+	//         
+	//
+	//        System.out.println("Clone HashCode: " + System.identityHashCode(System.identityHashCode(clonedUser)));
+	//
+	//
+	//        }
 
 }
+

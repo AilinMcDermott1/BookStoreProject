@@ -2,12 +2,14 @@ package com.ailin.bookstore.model;
 
 import javax.persistence.*;
 
+import com.ailin.bookstore.prototype.UserClone;
+
 import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "user")
-public class User {
+public class User implements UserClone{
 	private Long id;
 	private String username;
 	private String password;
@@ -16,7 +18,7 @@ public class User {
 	private String payment_details;
 	private Set<Role> roles;
 	private List<Book> shoppingCart;
-
+	
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getId() {
@@ -86,21 +88,40 @@ public class User {
 		
 	}
 
-	public String getShipping_address() {
-		return shipping_address;
-	}
+//	public String getShipping_address() {
+//		return shipping_address;
+//	}
 
 	public void setShipping_address(String shipping_address) {
 		this.shipping_address = shipping_address;
 	}
 
-	public String getPayment_details() {
-		return payment_details;
-	}
+//	public String getPayment_details() {
+//		return payment_details;
+//	}
 
 	public void setPayment_details(String payment_details) {
 		this.payment_details = payment_details;
 	}
 	
+	@Override
+	public String toString() {
+        return "Username - " + username + " Password - " + password + " Password Confirmation - " + passwordConfirm +" Shipping Address? "+shipping_address+" Payment Details? "+payment_details;
+	}
+
+	@Override
+	public UserClone makeCopy() {
+		System.out.println("User clone made!!");
+		User userObject = null;
+		try {
+			userObject = (User) super.clone(); 
+		}
+		catch (CloneNotSupportedException  e) {
+			System.out.println("........");
+			e.printStackTrace(); 
+		}
+		return null;
+	}
 	
 }
+	
