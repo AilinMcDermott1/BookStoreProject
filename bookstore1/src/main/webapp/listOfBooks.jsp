@@ -30,6 +30,10 @@ table, th, td {
 	<br>
 
 	<h2>All Books</h2>
+			<div class="row col-md-7 ">
+		 
+		  	<input class="form-control" id="inputFilter" type="text" placeholder="Search for Title, Author, or Category.." /><br>
+		  	</div>
 
 	<table id="customerTable"
 		class="table table-bordered table-hover table-responsive">
@@ -44,6 +48,9 @@ table, th, td {
 				<th class="genre">Genre</th>
 				
 				<th class="price">Price</th>
+				
+<!-- 				<th  class="image">Book Cover</th>
+ -->				
 
 			</tr>
 
@@ -60,6 +67,9 @@ table, th, td {
 			<td width="3.5%" height="50"><c:out value="${o.genre}" /></td>
 
 			<td width="3.5%" height="50"><c:out value="${o.price}" /></td>
+			
+<%-- 			<h3>Image:  <img src="${pageContext.request.contextPath}/resources/images/${image}"></h3>
+ --%>			
 
 			<td width="3.5%" height="50"><a href="<c:url value='/addToCart/${o.id}' />">
    							Add To Cart

@@ -16,7 +16,8 @@
   Author: <input type="text" name="author" id="author"/><br>
   Genre: <input type="text" name="genre" id="genre"/><br>
   Price: <input type="text" name="price" id="price"/><br>
-  <input type="submit" value="Submit">
+<!-- <!--   Image: <input type="file" name="image" id="image"/><br>
+ --> -->  <input type="submit" value="Submit">
 </form>
 
 </body>

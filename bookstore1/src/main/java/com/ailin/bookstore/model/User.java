@@ -2,7 +2,9 @@ package com.ailin.bookstore.model;
 
 import javax.persistence.*;
 
+import com.ailin.bookstore.model.Book;
 import com.ailin.bookstore.prototype.UserClone;
+
 
 import java.util.List;
 import java.util.Set;
@@ -18,6 +20,7 @@ public class User implements UserClone{
 	private String payment_details;
 	private Set<Role> roles;
 	private List<Book> shoppingCart;
+	
 	
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -69,9 +72,9 @@ public class User implements UserClone{
         this.roles = roles;
     }
     
-	public void saveBookToCart(Book book) {
-		shoppingCart.add(book);
-	}
+//	public void saveBookToCart(Book book) {
+//		shoppingCart.add(book);
+//	}
 	
 	@ManyToMany(cascade=CascadeType.PERSIST)
 	@JoinTable(name = "user_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
@@ -79,8 +82,12 @@ public class User implements UserClone{
 		return shoppingCart;
 	}
 	
+//	public void setShoppingCart(List<Book> shoppingCart) {
+//		this.shoppingCart = shoppingCart;
+//	}
+	
 	public void setShoppingCart(List<Book> shoppingCart) {
-		this.shoppingCart = shoppingCart;
+		this.shoppingCart = shoppingCart; 
 	}
 
 	public void removeBookFromShoppingCart(Book book) {
@@ -88,17 +95,17 @@ public class User implements UserClone{
 		
 	}
 
-//	public String getShipping_address() {
-//		return shipping_address;
-//	}
+	public String getShipping_address() {
+		return shipping_address;
+	}
 
 	public void setShipping_address(String shipping_address) {
 		this.shipping_address = shipping_address;
 	}
 
-//	public String getPayment_details() {
-//		return payment_details;
-//	}
+	public String getPayment_details() {
+		return payment_details;
+	}
 
 	public void setPayment_details(String payment_details) {
 		this.payment_details = payment_details;
@@ -108,20 +115,35 @@ public class User implements UserClone{
 	public String toString() {
         return "Username - " + username + " Password - " + password + " Password Confirmation - " + passwordConfirm +" Shipping Address? "+shipping_address+" Payment Details? "+payment_details;
 	}
+	
+	
+	public void saveBookToShoppingCart(Book book) {
+		shoppingCart.add(book);
+	}
+	
+	
+	public void clearShoppingCart() {
+		shoppingCart.clear();
+	}
 
+	// Prototype pattern implentaion - making a clone
 	@Override
 	public UserClone makeCopy() {
-		System.out.println("User clone made!!");
-		User userObject = null;
+				System.out.println("User is being cloned");
+		
+		User userClone = null;
+		
 		try {
-			userObject = (User) super.clone(); 
+			userClone = (User) super.clone();
 		}
-		catch (CloneNotSupportedException  e) {
-			System.out.println("........");
-			e.printStackTrace(); 
+		
+		catch (CloneNotSupportedException e) {
+			System.out.println("User not cloned");
+			e.printStackTrace();
 		}
-		return null;
+		return userClone;
 	}
+
 	
 }
 	

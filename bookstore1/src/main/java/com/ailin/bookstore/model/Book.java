@@ -15,6 +15,8 @@ public class Book {
 	private String title;
 	private String genre;
 	private double price;
+	private String image;
+
 
 	
 	
@@ -25,13 +27,14 @@ public class Book {
 
 
 	
-	public Book(Long id, String author, String title, String genre, double price) {
+	public Book(Long id, String author, String title, String genre, double price, String image) {
 		super();
 		this.id = id;
 		this.author = author;
 		this.title = title;
 		this.genre = genre;
 		this.price = price;
+		this.image = image; 
 	}
 
 
@@ -75,5 +78,25 @@ public class Book {
 	public void setGenre(String genre) {
 		this.genre = genre;
 	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	public int getQuantity() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void setQuantity(int newQuantity) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 
 }

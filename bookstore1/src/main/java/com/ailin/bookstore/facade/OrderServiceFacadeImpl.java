@@ -5,25 +5,29 @@ import com.ailin.bookstore.service.InventoryService;
 import com.ailin.bookstore.service.PaymentService;
 
 public class OrderServiceFacadeImpl implements OrderServiceFacade {
-	  public boolean placeOrder(Long id){
-	        boolean orderFulfilled=false;
-	        Book book=new Book();
-	        book.id=id;
-	        if(InventoryService.isAvailable(book))
-	        {
-	            System.out.println("Book with ID: "+ book.id+" is available.");
-	            boolean paymentConfirmed= PaymentService.makePayment();
-	            if(paymentConfirmed){
-	                System.out.println("Payment confirmed...");
-	                orderFulfilled=true;
-	            }
-	        }
-	        return orderFulfilled;
-	    }
+	public OrderServiceFacadeImpl() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	InventoryService inventoryService;
+	
+	PaymentService paymentService;
 
 	@Override
-	public boolean placeOrder(int id) {
-		return false;
+	public boolean placeOrder(Long id) {
+		boolean orderFulfilled = false;
+		Book book = new Book();
+		id = book.getId();
+		
+		if(InventoryService.isAvailable(book)) {
+			System.out.println("Product with ID: "+ book.getId()+" is available.");
+            boolean paymentConfirmed= PaymentService.makePayment();
+            if(paymentConfirmed){
+                System.out.println("Payment confirmed...");
+                orderFulfilled=true;
+            }
+		}
+		return orderFulfilled;
 	}
 
 }

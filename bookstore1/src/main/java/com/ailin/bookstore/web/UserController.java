@@ -3,6 +3,7 @@ package com.ailin.bookstore.web;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ailin.bookstore.facade.OrderServiceFacadeImpl;
 import com.ailin.bookstore.model.*;
-import com.ailin.bookstore.prototype.CloneFactory;
+import com.ailin.bookstore.prototype.*;
 import com.ailin.bookstore.repository.*;
 import com.ailin.bookstore.service.*;
 import com.ailin.bookstore.validator.UserValidator;
@@ -36,8 +37,11 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@RequestMapping(value = "/registration", method = RequestMethod.GET)
+	
+	@Autowired
+	private PurchaseHistoryRepository purchaseHistoryRepository; 
+    
+    @RequestMapping(value = "/registration", method = RequestMethod.GET)
 	public String registration(Model model) {
 		model.addAttribute("userForm", new User());
 
@@ -108,13 +112,24 @@ public class UserController {
 	public String addBook(Book book, @RequestParam("author") String author, 
 			@RequestParam("title") String title,
 			@RequestParam("genre") String genre,
-			@RequestParam("price") double price) {
+			@RequestParam("price") double price 
+/*			 @RequestParam("image") String image
+*/			 ) {
 
 		bookRepository.save(book);
 
 		return "welcome";
 
 	}
+	
+    @RequestMapping(value="/searchfunction", method=RequestMethod.GET)
+    @ResponseBody
+    public List<Book> searchbooks()
+    {
+    	   
+    	List<Book> searchresults = bookRepository.findAll();	   
+    	return searchresults;   
+    }
 
 	@RequestMapping(value = "/viewallbooks", method = RequestMethod.GET)
 	public String bookList(@Valid Book book, Model model) {
@@ -125,6 +140,16 @@ public class UserController {
 
 		return "listOfBooks";
 	}
+	
+    @RequestMapping(value = "/adminviewbook", method = RequestMethod.GET)
+    public String adminbookList(@Valid Book book, Model model) {
+    	List<Book> booksList = new ArrayList<>();
+    	booksList = bookRepository.findAll();
+    	
+    	model.addAttribute("booksList", booksList);
+    	
+    	return "adminView";
+    }
 
 	@RequestMapping(value = " /addToCart/{bookId}", method=RequestMethod.GET)
 	public String shoppingCart(@PathVariable("bookId")Long id, Model model) {
@@ -142,7 +167,7 @@ public class UserController {
 
 		System.out.println(username + "saved" + "Book: " + title);
 
-		user.saveBookToCart(book);
+		user.saveBookToShoppingCart(book);
 		userRepository.save(user);
 
 		return "addToCart";
@@ -204,33 +229,66 @@ public class UserController {
 				"Expiry Date: " + expirydate + "\n" +
 				"Card Number: " + carddetails + "\n" +
 				"CVV: " + cvv + "\n");
+		
 		User user = new User(); 
-
 		Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
 		String username = loggedInUser.getName(); // Authentication for 
 		user = userRepository.findByUsername(username);
 
 		user.setShipping_address(shipping);
-		userRepository.save(user);
 
-		OrderFulfillmentController controller=new OrderFulfillmentController();
-		controller.facade=new OrderServiceFacadeImpl();
-		if(controller.orderProduct(9)) {
-			boolean result=controller.orderFulfilled;
-		}
+        List<Book> shoppingcart = user.getShoppingCart();
+        
+        
+        for (Book book: shoppingcart) {
+        	OrderFulfillmentController controller = new OrderFulfillmentController(); 
+        	controller.facade = new OrderServiceFacadeImpl();
+        	controller.orderProduct(book.getId());
+	        int newQuantity = book.getQuantity() - 1;
+        	book.setQuantity(newQuantity);
+        	boolean result = controller.orderFulfilled;
+        	System.out.println(result);
+        	
+        }
+        
+        System.out.println("");
 
-		CloneFactory userMaker = new CloneFactory(); 
-		User clonedUser = (User) userMaker.getClone(user); 
 
-		System.out.println(user);
-		System.out.println(clonedUser);
-
-		System.out.println("User HashCode: " + System.identityHashCode(System.identityHashCode(user)));
-
-
-
-		System.out.println("Clone HashCode: " + System.identityHashCode(System.identityHashCode(clonedUser)));     
-
+		CloneFactory userCloner = new CloneFactory(); 
+		
+		User userClone = (User) userCloner.getClone(user); 
+		
+        PurchaseHistory purchaseHistory = new PurchaseHistory();
+		
+		
+		System.out.println("");
+		
+		 List<String> purchaseHistoryList = new ArrayList<String>();
+	        
+	        
+	        for(Book book: shoppingcart) {
+	        	String booktitle = book.getTitle();
+	        	purchaseHistoryList.add(booktitle);
+	        }
+	        
+	        user.clearShoppingCart();
+	        System.out.println("Cleared");
+	        purchaseHistory.setUsername(userClone.getUsername());
+	        purchaseHistory.setShipping_address(userClone.getShipping_address());
+	        purchaseHistory.setPurchaseHistory(purchaseHistoryList);
+	        System.out.println(purchaseHistoryList);
+	        
+	        userRepository.save(user); 
+	        purchaseHistoryRepository.save(purchaseHistory); 
+	        
+	        System.out.println("User 1");
+	        System.out.println("User : " + System.identityHashCode(System.identityHashCode(user)));
+	        System.out.println("Username : " + user.getUsername());
+	        System.out.println("Shopping Cart" + user.getShoppingCart());
+	        System.out.println("=======================================");
+	        System.out.println("User : " + System.identityHashCode(System.identityHashCode(userClone)));
+	        System.out.println("User 2: " + userClone.getUsername());
+	        System.out.println("Username : " + userClone.getShoppingCart());
 
 		return "payConfirmation";
 	}
@@ -244,6 +302,18 @@ public class UserController {
 
 		return "payConfirmation";
 	}
+	
+    @RequestMapping(value="/customerorders", method=RequestMethod.GET)
+    public String customerOrderPage(Model model) {
+    	
+    	Authentication loggedInUser = SecurityContextHolder.getContext().getAuthentication();
+        String username = loggedInUser.getName(); // Authentication for 
+        User user = userRepository.findByUsername(username);
+        
+        model.addAttribute("user", user);
+    	
+    	return "payConfirmation";
+    }
 
 	@RequestMapping(value = " /checkout", method=RequestMethod.GET)
 	public String checkout(Model model) {
@@ -268,42 +338,6 @@ public class UserController {
 		return "checkout";
 	}
 
-//	@RequestMapping(value="/orderfulfillment", method=RequestMethod.GET)
-//	@ResponseBody
-//	public void testOrderProduct() throws Exception{
-//		OrderFulfillmentController controller=new OrderFulfillmentController();
-//		controller.facade=new OrderServiceFacadeImpl();
-//		if(controller.orderProduct(9)) {
-//			boolean result=controller.orderFulfilled;
-//		}
-//
-//	}
-
-//	@RequestMapping(value="/userBuilder", method=RequestMethod.GET)
-//	@ResponseBody
-//	public void testUserBuilder() throws Exception{
-//		User userBuilder=new User();
-//		System.out.println("User details: "+userBuilder);
-//	}
-
-	//    @RequestMapping(value="/userBuilder", method=RequestMethod.GET)
-	//    @ResponseBody
-	//    public void testCloning() throws Exception{
-	//        CloneFactory userMaker = new CloneFactory(); 
-	//        User user = new User(); 
-	//        User clonedUser = (User) userMaker.getClone(user); 
-	//        
-	//        System.out.println(user);
-	//        System.out.println(clonedUser);
-	//        
-	//        System.out.println("User HashCode: " + System.identityHashCode(System.identityHashCode(user)));
-	//
-	//         
-	//
-	//        System.out.println("Clone HashCode: " + System.identityHashCode(System.identityHashCode(clonedUser)));
-	//
-	//
-	//        }
 
 }
 
